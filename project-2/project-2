@@ -1,0 +1,97 @@
+import numpy as np
+import pandas as pd
+
+# Read the CSV file and convert it to a pandas DataFrame
+file_path = "path_to_your_csv_file.csv"  # Replace with the actual path
+data_frame = pd.read_csv(file_path)
+
+# Convert the DataFrame to a NumPy array
+data_array = data_frame.to_numpy()
+
+# 1. Explore array attributes
+print("Array Dimension:", data_array.ndim)
+print("Array Shape:", data_array.shape)
+print("Array Data Type:", data_array.dtype)
+
+# 2. Print data in the first 10 rows of the 4th column
+print("Data in the first 10 rows of the 4th column:", data_array[:10, 3])
+
+# 3. Headers in the dataset
+headers_row = data_array[0]
+print("Headers/Column Titles:", headers_row)
+
+# 4. Print data in column 2 and 3 from row 1 to 20
+print("Data in column 2 and 3 from row 1 to 20:\n", data_array[1:21, 1:3])
+
+# 5. Print data in the first three and last three rows for all columns
+print("Data in the first three and last three rows of all columns:\n", data_array[:3], data_array[-3:])
+
+# 6. Sort data based on net amount of electricity generated
+sorted_data = data_array[data_array[:, 3].argsort()[::-1]]
+
+# 7. Find total electricity generated using coal and nuclear between 1949-1990
+coal_mask = (data_array[:, 1] == 'Coal') & (data_array[:, 0].astype(int) >= 1949) & (data_array[:, 0].astype(int) <= 1990)
+nuclear_mask = (data_array[:, 1] == 'Nuclear') & (data_array[:, 0].astype(int) >= 1949) & (data_array[:, 0].astype(int) <= 1990)
+coal_generation = np.sum(data_array[coal_mask, 4].astype(float))
+nuclear_generation = np.sum(data_array[nuclear_mask, 4].astype(float))
+print("Total electricity generated using coal between 1949-1990:", coal_generation)
+print("Total electricity generated using nuclear between 1949-1990:", nuclear_generation)
+
+# 8. Print unique sources of energy generation
+unique_sources = np.unique(data_array[:, 1])
+print("Unique sources of Energy generation:", unique_sources)
+
+# 9. Print all details where the energy source is Wind Energy
+wind_energy_mask = data_array[:, 1] == 'Wind Energy'
+wind_energy_data = data_array[wind_energy_mask]
+print("Details where the energy source is Wind Energy:\n", wind_energy_data)
+
+# 10. Total energy generated in the USA
+total_energy_generated = np.sum(data_array[:, 4].astype(float))
+print("Total energy generated in the USA:", total_energy_generated)
+
+# 11. Average annual energy generated from wind and its standard deviation
+wind_energy_generation = wind_energy_data[:, 4].astype(float)
+average_wind_energy = np.mean(wind_energy_generation)
+std_wind_energy = np.std(wind_energy_generation)
+print("Average annual energy generated from wind:", average_wind_energy)
+print("Standard deviation in wind energy generation:", std_wind_energy)
+
+# 12. Maximum annual energy generated
+max_energy_idx = np.argmax(data_array[:, 4].astype(float))
+max_energy = data_array[max_energy_idx, 4].astype(float)
+max_year = data_array[max_energy_idx, 0]
+print("Maximum annual energy generated:", max_energy, "in year", max_year)
+
+# 13. Check if energy production has increased in the last 10 years
+current_year = 2023  # Current year as of the knowledge cutoff date
+last_10_years_mask = data_array[:, 0].astype(int) >= (current_year - 10)
+last_10_years_generation = np.sum(data_array[last_10_years_mask, 4].astype(float))
+first_10_years_generation = np.sum(data_array[~last_10_years_mask, 4].astype(float))
+if last_10_years_generation > first_10_years_generation:
+    print("Energy production has increased in the last 10 years.")
+else:
+    print("Energy production has not increased in the last 10 years.")
+
+# 14. Trends in energy generated from wind and largest contributor over the years
+years = data_array[:, 0].astype(int)
+wind_energy_generation = data_array[data_array[:, 1] == 'Wind Energy', 4].astype(float)
+largest_contributor_idx = np.argmax(np.sum(data_array[:, 4].astype(float)))
+largest_contributor = data_array[largest_contributor_idx, 1]
+print("Trend in energy generated from wind over the years:", wind_energy_generation)
+print("Source of energy with largest contribution:", largest_contributor)
+
+# 15. Predict renewable source to meet major energy demand in the coming years
+# This would require additional data and predictive modeling, which is beyond the scope of this example.
+
+# 16. Compute contribution of wind, solar, and their combined contribution to total energy generation
+wind_mask = data_array[:, 1] == 'Wind Energy'
+solar_mask = data_array[:, 1] == 'Solar Thermal and Photovoltaic'
+wind_generation = np.sum(data_array[wind_mask, 4].astype(float))
+solar_generation = np.sum(data_array[solar_mask, 4].astype(float))
+total_generation = np.sum(data_array[:, 4].astype(float))
+combined_wind_solar_generation = wind_generation + solar_generation
+
+print("Contribution of Wind Energy:", wind_generation / total_generation)
+print("Contribution of Solar Energy:", solar_generation / total_generation)
+print("Combined contribution of Wind and Solar Energy:", combined_wind_solar_generation / total_generation)
